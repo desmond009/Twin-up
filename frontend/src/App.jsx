@@ -15,6 +15,9 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import Home from './pages/Home';
 import { useAuth } from './context/AuthContext';
+import { UserCircleIcon } from '@heroicons/react/24/solid';
+import { useRef, useState } from 'react';
+import React from 'react';
 
 function Placeholder({ title }) {
   return (
@@ -32,19 +35,58 @@ function PrivateRoute() {
 }
 
 function Header() {
+  const { isAuthenticated, user, logout } = useAuth();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef();
+
+  // Close dropdown on outside click
+  React.useEffect(() => {
+    function handleClick(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    if (dropdownOpen) document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [dropdownOpen]);
+
   return (
-    <header className="bg-gradient-to-r from-blue-500 via-green-400 to-blue-600 shadow-md px-4 py-3 relative">
-      <div className="max-w-6xl mx-auto flex items-center justify-center relative">
-        <nav className="flex gap-6 text-white font-medium text-lg">
-          <Link to="/profile" className="hover:text-yellow-200 transition">Profile</Link>
-          <Link to="/search" className="hover:text-yellow-200 transition">Search</Link>
-          <Link to="/swaps" className="hover:text-yellow-200 transition">Swaps</Link>
-          <Link to="/admin" className="hover:text-yellow-200 transition">Admin</Link>
+    <header className="bg-white shadow-sm px-4 py-3">
+      <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <Link to="/" className="text-2xl font-extrabold text-blue-700 tracking-tight">Twin-up</Link>
+        <nav className="flex gap-4 text-gray-700 font-medium text-base items-center">
+          <Link to="/profile" className="hover:text-blue-600 transition">Profile</Link>
+          <Link to="/search" className="hover:text-blue-600 transition">Search</Link>
+          <Link to="/swaps" className="hover:text-blue-600 transition">Swaps</Link>
+          <Link to="/admin" className="hover:text-blue-600 transition">Admin</Link>
+          {!isAuthenticated ? (
+            <>
+              <Link to="/register" className="ml-4 px-4 py-1.5 rounded-lg font-semibold border border-blue-600 text-blue-600 hover:bg-blue-50 transition">Register</Link>
+              <Link to="/login" className="px-4 py-1.5 rounded-lg font-semibold bg-blue-600 text-white hover:bg-blue-700 transition">Login</Link>
+            </>
+          ) : (
+            <div className="relative ml-4" ref={dropdownRef}>
+              <button
+                className="flex items-center gap-2 focus:outline-none"
+                onClick={() => setDropdownOpen((v) => !v)}
+                aria-label="User menu"
+              >
+                <UserCircleIcon className="w-8 h-8 text-blue-600" />
+              </button>
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                  <div className="px-4 py-2 text-gray-700 text-sm border-b">{user?.name || 'User'}</div>
+                  <button
+                    className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-50 text-sm rounded-b-lg"
+                    onClick={logout}
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </nav>
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 flex gap-2">
-          <Link to="/register" className="bg-white text-blue-600 px-4 py-1.5 rounded-lg font-semibold shadow hover:bg-blue-50 transition">Register</Link>
-          <Link to="/login" className="bg-blue-700 text-white px-4 py-1.5 rounded-lg font-semibold shadow hover:bg-blue-800 transition">Login</Link>
-        </div>
       </div>
     </header>
   );
