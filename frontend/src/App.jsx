@@ -5,6 +5,7 @@ import {
   Link,
   Navigate,
   Outlet,
+  useLocation,
 } from 'react-router-dom';
 import Profile from './pages/Profile';
 import Search from './pages/Search';
@@ -30,16 +31,30 @@ function PrivateRoute() {
   return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 }
 
+function Header() {
+  return (
+    <header className="bg-gradient-to-r from-blue-500 via-green-400 to-blue-600 shadow-md px-4 py-3 relative">
+      <div className="max-w-6xl mx-auto flex items-center justify-center relative">
+        <nav className="flex gap-6 text-white font-medium text-lg">
+          <Link to="/profile" className="hover:text-yellow-200 transition">Profile</Link>
+          <Link to="/search" className="hover:text-yellow-200 transition">Search</Link>
+          <Link to="/swaps" className="hover:text-yellow-200 transition">Swaps</Link>
+          <Link to="/admin" className="hover:text-yellow-200 transition">Admin</Link>
+        </nav>
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 flex gap-2">
+          <Link to="/register" className="bg-white text-blue-600 px-4 py-1.5 rounded-lg font-semibold shadow hover:bg-blue-50 transition">Register</Link>
+          <Link to="/login" className="bg-blue-700 text-white px-4 py-1.5 rounded-lg font-semibold shadow hover:bg-blue-800 transition">Login</Link>
+        </div>
+      </div>
+    </header>
+  );
+}
+
 function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gray-50">
-        <nav className="bg-white shadow-md rounded-b-lg px-4 py-3 flex gap-4 items-center">
-          <Link to="/profile" className="font-medium hover:text-blue-600">Profile</Link>
-          <Link to="/search" className="font-medium hover:text-blue-600">Search</Link>
-          <Link to="/swaps" className="font-medium hover:text-blue-600">Swaps</Link>
-          <Link to="/admin" className="font-medium hover:text-blue-600">Admin</Link>
-        </nav>
+        <Header />
         <main className="p-4">
           <Routes>
             <Route path="/" element={<Home />} />

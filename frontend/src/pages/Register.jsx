@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../api';
 
 const initialState = {
   name: '',
@@ -14,6 +16,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -25,24 +28,19 @@ export default function Register() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          password: form.password,
-          location: form.location,
-          skillsOffered: form.skillsOffered.split(',').map(s => s.trim()).filter(Boolean),
-          skillsWanted: form.skillsWanted.split(',').map(s => s.trim()).filter(Boolean),
-        }),
+      const res = await api.post('/auth/register', {
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        location: form.location,
+        skillsOffered: form.skillsOffered.split(',').map(s => s.trim()).filter(Boolean),
+        skillsWanted: form.skillsWanted.split(',').map(s => s.trim()).filter(Boolean),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Registration failed');
       setSuccess('Registration successful! You can now log in.');
       setForm(initialState);
+      setTimeout(() => navigate('/login'), 1200);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || 'Registration failed');
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../api';
 
 const initialState = {
   email: '',
@@ -10,6 +12,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -21,21 +24,16 @@ export default function Login() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: form.email,
-          password: form.password,
-        }),
+      const res = await api.post('/auth/login', {
+        email: form.email,
+        password: form.password,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Login failed');
-      localStorage.setItem('token', data.data.token);
+      localStorage.setItem('token', res.data.data.token);
       setSuccess('Login successful!');
       setForm(initialState);
+      setTimeout(() => navigate('/profile'), 800);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
     }

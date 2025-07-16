@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import api from '../api';
 
 const AuthContext = createContext();
 
@@ -9,13 +10,11 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (token) {
-      // Optionally fetch user info from backend
-      fetch('/api/auth/me', {
+      api.get('/auth/me', {
         headers: { Authorization: `Bearer ${token}` },
       })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) setUser(data.data.user);
+        .then(res => {
+          if (res.data.success) setUser(res.data.data.user);
           else logout();
         })
         .catch(() => logout())
